@@ -2,55 +2,102 @@ package main
 
 import (
 	"fmt"
+	"github.com/urfave/cli/v2"
+	"log"
 	"os"
 	"strings"
 )
 
-func eprintlnExit(message string) {
-	fmt.Fprintln(os.Stderr, message)
+func EprintlnExit(messages ...any) {
+	fmt.Fprintln(os.Stderr, messages...)
 	os.Exit(1)
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		eprintlnExit("Error: requires command name")
-		return
+	app := cli.App{
+		Name:  "gscp",
+		Usage: "minimum set of google cloud copy command",
+		Commands: []*cli.Command{
+			{
+				Name:        "ls",
+				Description: "list up files of google cloud storage.",
+				ArgsUsage:   "[bucketUri:\"gs://bucketName/path\"]",
+				Action: func(ctx *cli.Context) error {
+					CheckEnvironmentValues()
+
+					if ctx.Args().Len() < 1 {
+						EprintlnExit("ERROR: ls requires a argument")
+						return nil
+					}
+
+					uri := ctx.Args().First()
+					CommandListObjects(uri)
+					return nil
+				},
+			},
+			{
+				Name:        "cp",
+				Description: "copy files between google cloud storage files [gs://bucketName/path] and local files [/path/to/file].",
+				ArgsUsage:   "[bucketUri|localPath] [localPath|bucketUri]",
+				Action: func(ctx *cli.Context) error {
+					CheckEnvironmentValues()
+
+					if ctx.Args().Len() < 2 {
+						EprintlnExit("ERROR: cp requires 2 arguments")
+						return nil
+					}
+
+					srcUri := ctx.Args().Get(0)
+					dstUri := ctx.Args().Get(1)
+					if strings.HasPrefix(srcUri, "gs://") {
+						CommandCopyObjectToLocal(srcUri, dstUri)
+					} else {
+						CommandCopyLocalToBucket(srcUri, dstUri)
+					}
+					return nil
+				},
+			},
+			{
+				Name:        "rm",
+				Description: "remove file of google cloud storage [gs://bucketName/path].",
+				ArgsUsage:   "[bucketUri]",
+				Action: func(ctx *cli.Context) error {
+					CheckEnvironmentValues()
+					if ctx.Args().Len() < 1 {
+						EprintlnExit("Error: rm requires an argument")
+						return nil
+					}
+
+					uri := ctx.Args().Get(0)
+					CommandRemoveObject(uri)
+					return nil
+				},
+			},
+			{
+				Name:        "rsync",
+				Description: "synchronize between google cloud storage files and local files.",
+				ArgsUsage:   "[bucketUri|localPath] [localPath|bucketUri]",
+				Action: func(ctx *cli.Context) error {
+					CheckEnvironmentValues()
+					if ctx.Args().Len() < 2 {
+						EprintlnExit("ERROR: rsync requires 2 arguments")
+						return nil
+					}
+
+					srcUri := ctx.Args().Get(0)
+					dstUri := ctx.Args().Get(1)
+					if strings.HasPrefix(srcUri, "gs://") {
+						CommandSyncBucketToLocal(srcUri, dstUri)
+					} else {
+						CommandSyncLocalToBucket(srcUri, dstUri)
+					}
+					return nil
+				},
+			},
+		},
 	}
 
-	command := os.Args[1]
-	switch command {
-	case "ls":
-		CheckEnvironmentValues()
-		uri := os.Args[2]
-		ListObjects(uri)
-	case "cp":
-		CheckEnvironmentValues()
-		if len(os.Args) < 4 {
-			eprintlnExit("Error: cp requires 2 arguments")
-		}
-
-		srcUri := os.Args[2]
-		dstUri := os.Args[3]
-		if strings.HasPrefix(srcUri, "gs://") {
-			CopyObjectToLocal(srcUri, dstUri)
-		} else {
-			CopyLocalToBucket(srcUri, dstUri)
-		}
-	case "rm":
-		CheckEnvironmentValues()
-		uri := os.Args[2]
-		RemoveObject(uri)
-	case "rsync":
-		CheckEnvironmentValues()
-
-		srcUri := os.Args[2]
-		dstUri := os.Args[3]
-		if strings.HasPrefix(srcUri, "gs://") {
-			SyncBucketToLocal(srcUri, dstUri)
-		} else {
-			SyncLocalToBucket(srcUri, dstUri)
-		}
-	default:
-		fmt.Println("Invalid command")
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal("ERROR: ", err)
 	}
 }
