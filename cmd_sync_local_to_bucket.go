@@ -24,18 +24,26 @@ func CommandSyncLocalToBucket(source string, bucketURI string) {
 			}
 
 			// read
-			data := ReadFile(path)
+			data, err := ReadFile(path)
+			if err != nil {
+				EprintlnExit("ERROR: failed to read file: ", err)
+				return err
+			}
 
 			// write
 			pathForObject := strings.TrimPrefix(path, source)
 			objectPath := filepath.Join(bucketPath, pathForObject)
-			WriteObject(ctx, client, bucketName, objectPath, data)
-			fmt.Println("write:", path, "=>", filepath.Join("gs://", bucketName, objectPath))
+			err = WriteObject(ctx, client, bucketName, objectPath, data)
+			if err != nil {
+				EprintlnExit("ERROR: failed to write object: ", err)
+				return err
+			}
+			fmt.Println("copy", path, "=>", "gs://"+filepath.Join(bucketName, objectPath))
 			return err
 		})
 
 	if err != nil {
-		EprintlnExit("Error walking the path", source, ":", err)
+		EprintlnExit("ERROR: walking the path", source, ":", err)
 		return
 	}
 }

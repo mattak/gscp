@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -22,26 +23,29 @@ func mkdirp(path string) error {
 	return os.MkdirAll(path, 0755)
 }
 
-func ReadFile(source string) []byte {
+func ReadFile(source string) ([]byte, error) {
 	data, err := os.ReadFile(source)
 	if err != nil {
-		EprintlnExit("Failed to read file:", err)
-		return nil
+		fmt.Errorf("Failed to read file: %v\n", err)
+		return nil, err
 	}
-	return data
+	return data, nil
 }
 
-func WriteFile(path string, data []byte) {
+func WriteFile(path string, data []byte) error {
 	dir := filepath.Dir(path)
 	if !IsDirExist(dir) {
 		if err := mkdirp(dir); err != nil {
-			EprintlnExit("Failed to create directory: " + dir)
+			fmt.Errorf("Failed to create directory: %s\n", dir)
+			return err
 		}
 	}
 
 	err := os.WriteFile(path, data, 0644)
 	if err != nil {
-		EprintlnExit("Failed to write file:", err)
-		return
+		fmt.Errorf("Failed to write file: %v\n", err)
+		return err
 	}
+
+	return nil
 }

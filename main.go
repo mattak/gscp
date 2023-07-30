@@ -64,7 +64,7 @@ func main() {
 				Action: func(ctx *cli.Context) error {
 					CheckEnvironmentValues()
 					if ctx.Args().Len() < 1 {
-						EprintlnExit("Error: rm requires an argument")
+						EprintlnExit("ERROR: rm requires an argument")
 						return nil
 					}
 

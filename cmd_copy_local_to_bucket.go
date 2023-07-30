@@ -25,9 +25,15 @@ func CommandCopyLocalToBucket(source string, bucketURI string) {
 	defer client.Close()
 
 	// read
-	data := ReadFile(source)
+	data, err := ReadFile(source)
+	if err != nil {
+		EprintlnExit("ERROR: failed to read file: ", source)
+	}
 
 	// write
-	WriteObject(ctx, client, bucketName, bucketObject, data)
+	err = WriteObject(ctx, client, bucketName, bucketObject, data)
+	if err != nil {
+		EprintlnExit("ERROR: failed to write object: ", err)
+	}
 	fmt.Println(filepath.Join("gs://", bucketName, bucketObject))
 }

@@ -24,7 +24,7 @@ func CommandSyncBucketToLocal(bucketURI string, destination string) {
 			break
 		}
 		if err != nil {
-			EprintlnExit("Error:", err)
+			EprintlnExit("ERROR:", err)
 			return
 		}
 
@@ -35,11 +35,15 @@ func CommandSyncBucketToLocal(bucketURI string, destination string) {
 		}
 
 		// read
-		data := ReadObject(ctx, client, bucketName, attrs.Name)
+		data, err := ReadObject(ctx, client, bucketName, attrs.Name)
+		if err != nil {
+			EprintlnExit("ERROR: failed to read object: ", err)
+			return
+		}
 
 		// write
 		dstPath := filepath.Join(destination, attrs.Name)
 		WriteFile(dstPath, data)
-		fmt.Println("write", filepath.Join("gs://", bucketName, attrs.Name), "=>", dstPath)
+		fmt.Println("copy", "gs://"+filepath.Join(bucketName, attrs.Name), "=>", dstPath)
 	}
 }

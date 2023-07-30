@@ -9,36 +9,51 @@ import (
 	"strings"
 )
 
-func ReadObject(ctx *context.Context, client *storage.Client, bucketName string, objectName string) []byte {
+func ReadObject(
+	ctx *context.Context,
+	client *storage.Client,
+	bucketName string,
+	objectName string,
+) ([]byte, error) {
 	rc, err := client.Bucket(bucketName).Object(objectName).NewReader(*ctx)
 	defer rc.Close()
 
 	if err != nil {
-		EprintlnExit("Failed to open object:", err)
-		return nil
+		fmt.Errorf("Failed to open object: %v\n", err)
+		return nil, err
 	}
 
 	data, err := ioutil.ReadAll(rc)
 	if err != nil {
-		EprintlnExit("Failed to read object:", err)
-		return nil
+		fmt.Errorf("Failed to read object: %v\n", err)
+		return nil, err
 	}
 
-	return data
+	return data, nil
 }
 
-func WriteObject(ctx *context.Context, client *storage.Client, bucketName string, objectPath string, data []byte) {
+func WriteObject(
+	ctx *context.Context,
+	client *storage.Client,
+	bucketName string,
+	objectPath string,
+	data []byte,
+) error {
 	// Get object handle
 	obj := client.Bucket(bucketName).Object(objectPath)
 
 	// Write data to object
 	wc := obj.NewWriter(*ctx)
 	if _, err := wc.Write(data); err != nil {
-		EprintlnExit("Failed to write to object:", err)
+		fmt.Errorf("Failed to write to object: %v\n", err)
+		return err
 	}
 	if err := wc.Close(); err != nil {
-		EprintlnExit("Failed to close writer:", err)
+		fmt.Errorf("Failed to close writer: %v\n", err)
+		return err
 	}
+
+	return nil
 }
 
 func RemoveObject(

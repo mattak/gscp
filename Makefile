@@ -6,7 +6,7 @@ GOTEST=$(GOCMD) test
 GOCLEAN=$(GOCMD) clean
 BINARY_NAME=gscp
 
-all: test build
+all: clean build
 
 build:
 	$(GOBUILD) -o $(BINARY_NAME) -v

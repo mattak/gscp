@@ -37,13 +37,15 @@ func TestReadFile(t *testing.T) {
 
 	tf.Run("read empty", func(tf TestFrame) {
 		execute("touch", "/tmp/test/a.txt")
-		f := ReadFile("/tmp/test/a.txt")
+		f, err := ReadFile("/tmp/test/a.txt")
+		tf.AssertNil(err)
 		tf.AssertEquals(string(f), "")
 	})
 
 	tf.Run("read filled", func(tf TestFrame) {
 		execute("/bin/bash", "-c", "echo hello > /tmp/test/a.txt")
-		f := ReadFile("/tmp/test/a.txt")
+		f, err := ReadFile("/tmp/test/a.txt")
+		tf.AssertNil(err)
 		tf.AssertEquals(string(f), "hello\n")
 	})
 

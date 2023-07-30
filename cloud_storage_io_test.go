@@ -29,10 +29,15 @@ func TestWriteReadObject(t *testing.T) {
 		defer client.Close()
 
 		path := filepath.Join(bucketPath, "a.txt")
-		WriteObject(ctx, client, bucketName, path, []byte("hello"))
-		data := ReadObject(ctx, client, bucketName, path)
+		err := WriteObject(ctx, client, bucketName, path, []byte("hello"))
+		tf.AssertNil(err)
+
+		data, err := ReadObject(ctx, client, bucketName, path)
+		tf.AssertNil(err)
 		tf.AssertEquals(string(data), "hello")
-		RemoveObject(ctx, client, bucketName, path)
+
+		err = RemoveObject(ctx, client, bucketName, path)
+		tf.AssertNil(err)
 	})
 
 	teardown_cloud_storage_io()

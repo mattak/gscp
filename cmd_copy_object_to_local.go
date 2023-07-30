@@ -19,7 +19,11 @@ func CommandCopyObjectToLocal(bucketURI string, destination string) {
 	defer client.Close()
 
 	// read
-	data := ReadObject(ctx, client, bucketName, objectName)
+	data, err := ReadObject(ctx, client, bucketName, objectName)
+	if err != nil {
+		EprintlnExit("ERROR: failed to read object: ", err)
+		return
+	}
 
 	// write
 	WriteFile(destination, data)
