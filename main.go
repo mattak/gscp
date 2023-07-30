@@ -19,8 +19,9 @@ func Eprintln(messages ...any) {
 
 func main() {
 	app := cli.App{
-		Name:  "gscp",
-		Usage: "minimum set of google cloud copy command",
+		Name:        "gscp",
+		Usage:       "minimum set of google cloud copy command",
+		Description: "Environment value of GOOGLE_APPLICATION_CREDENTIALS is required for every command processing",
 		Commands: []*cli.Command{
 			{
 				Name:        "ls",
