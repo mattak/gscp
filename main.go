@@ -24,7 +24,7 @@ func main() {
 		Commands: []*cli.Command{
 			{
 				Name:        "ls",
-				Description: "list up files of google cloud storage.",
+				Description: "list up objects of google cloud storage.",
 				ArgsUsage:   "[bucketUri:\"gs://bucketName/path\"]",
 				Action: func(ctx *cli.Context) error {
 					CheckEnvironmentValues()
@@ -36,6 +36,39 @@ func main() {
 
 					uri := ctx.Args().First()
 					CommandListObjects(uri)
+					return nil
+				},
+			},
+			{
+				Name:        "lsd",
+				Description: "list up detail objects of google cloud storage.",
+				ArgsUsage:   "[bucketUri:\"gs://bucketName/path\"]",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "latest1",
+						Aliases: []string{"l1"},
+					},
+					&cli.BoolFlag{
+						Name:    "name-only",
+						Aliases: []string{"n"},
+					},
+				},
+				Action: func(ctx *cli.Context) error {
+					CheckEnvironmentValues()
+
+					if ctx.Args().Len() < 1 {
+						EprintlnExit("ERROR: ls requires a argument")
+						return nil
+					}
+
+					uri := ctx.Args().First()
+					withLatest1Option := ctx.Bool("latest1")
+					withNameOnlyOption := ctx.Bool("name-only")
+					option := CommandListDetailObjectsOption{
+						WithLatest1:  withLatest1Option,
+						WithNameOnly: withNameOnlyOption,
+					}
+					CommandListDetailObjects(uri, option)
 					return nil
 				},
 			},

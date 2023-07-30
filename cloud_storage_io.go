@@ -6,6 +6,7 @@ import (
 	"google.golang.org/api/iterator"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 func ReadObject(
@@ -18,13 +19,13 @@ func ReadObject(
 	defer rc.Close()
 
 	if err != nil {
-		Eprintln("Failed to open object: %v\n", err)
+		Eprintln("Failed to open object: ", err)
 		return nil, err
 	}
 
 	data, err := ioutil.ReadAll(rc)
 	if err != nil {
-		Eprintln("Failed to read object: %v\n", err)
+		Eprintln("Failed to read object: ", err)
 		return nil, err
 	}
 
@@ -44,11 +45,11 @@ func WriteObject(
 	// Write data to object
 	wc := obj.NewWriter(*ctx)
 	if _, err := wc.Write(data); err != nil {
-		Eprintln("Failed to write to object: %v\n", err)
+		Eprintln("Failed to write to object: ", err)
 		return err
 	}
 	if err := wc.Close(); err != nil {
-		Eprintln("Failed to close writer: %v\n", err)
+		Eprintln("Failed to close writer: ", err)
 		return err
 	}
 
@@ -63,7 +64,7 @@ func RemoveObject(
 ) error {
 	obj := client.Bucket(bucketName).Object(objectPath)
 	if err := obj.Delete(*ctx); err != nil {
-		Eprintln("Failed to delete object: %v\n", err)
+		Eprintln("Failed to delete object: ", err)
 		return err
 	}
 	return nil
@@ -88,6 +89,44 @@ func ListObject(
 		}
 		if strings.HasPrefix(attrs.Name, objectPath) {
 			results = append(results, attrs.Name)
+		}
+	}
+
+	return results, nil
+}
+
+type DetailObject struct {
+	Path    string
+	Created time.Time
+	Updated time.Time
+	Size    int64
+}
+
+func ListDetailObject(
+	ctx *context.Context,
+	client *storage.Client,
+	bucketName string,
+	objectPath string,
+) ([]DetailObject, error) {
+	it := client.Bucket(bucketName).Objects(*ctx, nil)
+	results := []DetailObject{}
+
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if strings.HasPrefix(attrs.Name, objectPath) {
+			o := DetailObject{
+				Path:    attrs.Name,
+				Created: attrs.Created,
+				Updated: attrs.Created,
+				Size:    attrs.Size,
+			}
+			results = append(results, o)
 		}
 	}
 

@@ -25,7 +25,7 @@ func mkdirp(path string) error {
 func ReadFile(source string) ([]byte, error) {
 	data, err := os.ReadFile(source)
 	if err != nil {
-		Eprintln("Failed to read file: %v\n", err)
+		Eprintln("Failed to read file: ", err)
 		return nil, err
 	}
 	return data, nil
@@ -35,14 +35,14 @@ func WriteFile(path string, data []byte) error {
 	dir := filepath.Dir(path)
 	if !IsDirExist(dir) {
 		if err := mkdirp(dir); err != nil {
-			Eprintln("Failed to create directory: %s\n", dir)
+			Eprintln("Failed to create directory: ", dir)
 			return err
 		}
 	}
 
 	err := os.WriteFile(path, data, 0644)
 	if err != nil {
-		Eprintln("Failed to write file: %v\n", err)
+		Eprintln("Failed to write file: ", err)
 		return err
 	}
 

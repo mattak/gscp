@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // list all objects in a bucket
 func CommandListObjects(bucketURI string) {
@@ -12,7 +14,7 @@ func CommandListObjects(bucketURI string) {
 
 	paths, err := ListObject(ctx, client, bucketName, bucketPath)
 	if err != nil {
-		EprintlnExit("ERROR: list object failed: ", err)
+		EprintlnExit("ERROR: list detail objects failed: ", err)
 		return
 	}
 
