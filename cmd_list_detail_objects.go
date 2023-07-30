@@ -4,11 +4,20 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type CommandListDetailObjectsOption struct {
-	WithLatest1  bool
-	WithNameOnly bool
+	WithLatest1    bool
+	WithNameOnly   bool
+	WithUnixMillis bool
+}
+
+func getTimeFormat(t time.Time, option CommandListDetailObjectsOption) string {
+	if option.WithUnixMillis {
+		return strconv.FormatInt(t.UnixMilli(), 10)
+	}
+	return t.Format("2006-01-02_15:04:05-0700")
 }
 
 func printDetailObject(o DetailObject, option CommandListDetailObjectsOption) {
@@ -17,8 +26,8 @@ func printDetailObject(o DetailObject, option CommandListDetailObjectsOption) {
 	} else {
 		line := strings.Join(
 			[]string{
-				o.Created.Format("2006-01-02_15:04:05-0700"),
-				o.Updated.Format("2006-01-02_15:04:05-0700"),
+				getTimeFormat(o.Created, option),
+				getTimeFormat(o.Updated, option),
 				strconv.FormatInt(o.Size, 10),
 				o.Path,
 			},

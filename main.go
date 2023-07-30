@@ -46,11 +46,15 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "latest1",
-						Aliases: []string{"l1"},
+						Aliases: []string{"1"},
 					},
 					&cli.BoolFlag{
 						Name:    "name-only",
 						Aliases: []string{"n"},
+					},
+					&cli.BoolFlag{
+						Name:    "unix-millis",
+						Aliases: []string{"u"},
 					},
 				},
 				Action: func(ctx *cli.Context) error {
@@ -64,9 +68,11 @@ func main() {
 					uri := ctx.Args().First()
 					withLatest1Option := ctx.Bool("latest1")
 					withNameOnlyOption := ctx.Bool("name-only")
+					withUnixMillisOption := ctx.Bool("unix-millis")
 					option := CommandListDetailObjectsOption{
-						WithLatest1:  withLatest1Option,
-						WithNameOnly: withNameOnlyOption,
+						WithLatest1:    withLatest1Option,
+						WithNameOnly:   withNameOnlyOption,
+						WithUnixMillis: withUnixMillisOption,
 					}
 					CommandListDetailObjects(uri, option)
 					return nil
