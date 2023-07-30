@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func IsDirExist(path string) bool {
@@ -16,6 +17,14 @@ func IsDirExist(path string) bool {
 	} else {
 		return false
 	}
+}
+
+func IsDir(path string) bool {
+	dir := filepath.Base(path)
+	if dir == "." || dir == ".." || strings.HasSuffix(path, "/") {
+		return true
+	}
+	return false
 }
 
 func mkdirp(path string) error {

@@ -10,8 +10,8 @@ import (
 func CommandCopyObjectToLocal(bucketURI string, destination string) {
 	bucketName, objectName := SplitBucketURI(bucketURI)
 
-	if destination == "." {
-		destination = filepath.Base(objectName)
+	if IsDir(destination) {
+		destination = filepath.Join(filepath.Dir(destination), filepath.Base(objectName))
 	}
 
 	//  client
