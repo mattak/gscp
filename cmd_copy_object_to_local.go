@@ -26,6 +26,9 @@ func CommandCopyObjectToLocal(bucketURI string, destination string) {
 	}
 
 	// write
-	WriteFile(destination, data)
+	err = WriteFile(destination, data)
+	if err != nil {
+		EprintlnExit("ERROR: failed to write file: ", err)
+	}
 	fmt.Fprintln(os.Stderr, destination)
 }
