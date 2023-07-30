@@ -3,7 +3,6 @@ package main
 import (
 	"cloud.google.com/go/storage"
 	"context"
-	"fmt"
 	"google.golang.org/api/iterator"
 	"io/ioutil"
 	"strings"
@@ -19,13 +18,13 @@ func ReadObject(
 	defer rc.Close()
 
 	if err != nil {
-		fmt.Errorf("Failed to open object: %v\n", err)
+		Eprintln("Failed to open object: %v\n", err)
 		return nil, err
 	}
 
 	data, err := ioutil.ReadAll(rc)
 	if err != nil {
-		fmt.Errorf("Failed to read object: %v\n", err)
+		Eprintln("Failed to read object: %v\n", err)
 		return nil, err
 	}
 
@@ -45,11 +44,11 @@ func WriteObject(
 	// Write data to object
 	wc := obj.NewWriter(*ctx)
 	if _, err := wc.Write(data); err != nil {
-		fmt.Errorf("Failed to write to object: %v\n", err)
+		Eprintln("Failed to write to object: %v\n", err)
 		return err
 	}
 	if err := wc.Close(); err != nil {
-		fmt.Errorf("Failed to close writer: %v\n", err)
+		Eprintln("Failed to close writer: %v\n", err)
 		return err
 	}
 
@@ -64,7 +63,7 @@ func RemoveObject(
 ) error {
 	obj := client.Bucket(bucketName).Object(objectPath)
 	if err := obj.Delete(*ctx); err != nil {
-		fmt.Errorf("Failed to delete object: %v\n", err)
+		Eprintln("Failed to delete object: %v\n", err)
 		return err
 	}
 	return nil

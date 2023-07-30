@@ -13,7 +13,9 @@ func CommandRemoveObject(bucketUri string) {
 	defer client.Close()
 
 	if err := RemoveObject(ctx, client, bucketName, bucketPath); err != nil {
-		EprintlnExit(fmt.Sprintf("ERROR: failed to remove object: %v", err))
+		Eprintln("Failed to remove: gs://" + bucketName + "/" + bucketPath)
+		EprintlnExit("ERROR: failed to remove object: ", err)
+		return
 	}
 	fmt.Printf("gs://%s\n", path.Join(bucketName, bucketPath))
 }

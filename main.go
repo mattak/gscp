@@ -13,6 +13,10 @@ func EprintlnExit(messages ...any) {
 	os.Exit(1)
 }
 
+func Eprintln(messages ...any) {
+	fmt.Fprintln(os.Stderr, messages...)
+}
+
 func main() {
 	app := cli.App{
 		Name:  "gscp",
