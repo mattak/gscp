@@ -2,10 +2,10 @@ module github.com/mattak/gscp/cmd
 
 go 1.19
 
-replace github.com/mattak/gscp/internal => ../internal
+replace github.com/mattak/gscp/pkg/gscp => ./../pkg/gscp
 
 require (
-	github.com/mattak/gscp/internal v0.0.0-00010101000000-000000000000
+	github.com/mattak/gscp/pkg/gscp v0.0.0-00010101000000-000000000000
 	github.com/urfave/cli/v2 v2.25.7
 )
 
