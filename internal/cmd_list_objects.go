@@ -1,11 +1,12 @@
-package main
+package internal
 
 import (
 	"fmt"
+	"os"
 )
 
 // list all objects in a bucket
-func CommandListObjects(bucketURI string) {
+func CommandListObjects(bucketURI string) error {
 	bucketName, bucketPath := SplitBucketURI(bucketURI)
 
 	// client
@@ -14,11 +15,13 @@ func CommandListObjects(bucketURI string) {
 
 	paths, err := ListObject(ctx, client, bucketName, bucketPath)
 	if err != nil {
-		EprintlnExit("ERROR: list detail objects failed: ", err)
-		return
+		fmt.Fprintln(os.Stderr, "ERROR: list detail objects failed: ", err)
+		return err
 	}
 
 	for _, p := range paths {
 		fmt.Println(p)
 	}
+
+	return nil
 }

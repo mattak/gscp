@@ -1,7 +1,8 @@
-package main
+package internal
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -51,7 +52,7 @@ func findLatestDetailObjectIndex(objects []DetailObject) int {
 }
 
 // list all detailed objects in a bucket
-func CommandListDetailObjects(bucketURI string, option CommandListDetailObjectsOption) {
+func CommandListDetailObjects(bucketURI string, option CommandListDetailObjectsOption) error {
 	bucketName, bucketPath := SplitBucketURI(bucketURI)
 
 	// client
@@ -60,17 +61,17 @@ func CommandListDetailObjects(bucketURI string, option CommandListDetailObjectsO
 
 	objects, err := ListDetailObject(ctx, client, bucketName, bucketPath)
 	if err != nil {
-		EprintlnExit("ERROR: list object failed: ", err)
-		return
+		fmt.Fprintln(os.Stderr, "ERROR: list object failed: ", err)
+		return err
 	}
 
 	if option.WithLatest1 {
 		if len(objects) < 1 {
-			return
+			return nil
 		}
 		maxIndex := findLatestDetailObjectIndex(objects)
 		if maxIndex < 0 {
-			return
+			return nil
 		}
 
 		printDetailObject(objects[maxIndex], option)
@@ -79,4 +80,6 @@ func CommandListDetailObjects(bucketURI string, option CommandListDetailObjectsO
 			printDetailObject(o, option)
 		}
 	}
+
+	return nil
 }

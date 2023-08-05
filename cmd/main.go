@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/mattak/gscp/internal"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -11,10 +12,6 @@ import (
 func EprintlnExit(messages ...any) {
 	fmt.Fprintln(os.Stderr, messages...)
 	os.Exit(1)
-}
-
-func Eprintln(messages ...any) {
-	fmt.Fprintln(os.Stderr, messages...)
 }
 
 func main() {
@@ -28,7 +25,7 @@ func main() {
 				Description: "list up objects of google cloud storage.",
 				ArgsUsage:   "[bucketUri:\"gs://bucketName/path\"]",
 				Action: func(ctx *cli.Context) error {
-					CheckEnvironmentValues()
+					internal.CheckEnvironmentValues()
 
 					if ctx.Args().Len() < 1 {
 						EprintlnExit("ERROR: ls requires a argument")
@@ -36,8 +33,7 @@ func main() {
 					}
 
 					uri := ctx.Args().First()
-					CommandListObjects(uri)
-					return nil
+					return internal.CommandListObjects(uri)
 				},
 			},
 			{
@@ -59,7 +55,7 @@ func main() {
 					},
 				},
 				Action: func(ctx *cli.Context) error {
-					CheckEnvironmentValues()
+					internal.CheckEnvironmentValues()
 
 					if ctx.Args().Len() < 1 {
 						EprintlnExit("ERROR: ls requires a argument")
@@ -70,13 +66,12 @@ func main() {
 					withLatest1Option := ctx.Bool("latest1")
 					withNameOnlyOption := ctx.Bool("name-only")
 					withUnixMillisOption := ctx.Bool("unix-millis")
-					option := CommandListDetailObjectsOption{
+					option := internal.CommandListDetailObjectsOption{
 						WithLatest1:    withLatest1Option,
 						WithNameOnly:   withNameOnlyOption,
 						WithUnixMillis: withUnixMillisOption,
 					}
-					CommandListDetailObjects(uri, option)
-					return nil
+					return internal.CommandListDetailObjects(uri, option)
 				},
 			},
 			{
@@ -84,7 +79,7 @@ func main() {
 				Description: "copy files between google cloud storage files [gs://bucketName/path] and local files [/path/to/file].",
 				ArgsUsage:   "[bucketUri|localPath] [localPath|bucketUri]",
 				Action: func(ctx *cli.Context) error {
-					CheckEnvironmentValues()
+					internal.CheckEnvironmentValues()
 
 					if ctx.Args().Len() < 2 {
 						EprintlnExit("ERROR: cp requires 2 arguments")
@@ -94,11 +89,10 @@ func main() {
 					srcUri := ctx.Args().Get(0)
 					dstUri := ctx.Args().Get(1)
 					if strings.HasPrefix(srcUri, "gs://") {
-						CommandCopyObjectToLocal(srcUri, dstUri)
+						return internal.CommandCopyObjectToLocal(srcUri, dstUri)
 					} else {
-						CommandCopyLocalToBucket(srcUri, dstUri)
+						return internal.CommandCopyLocalToBucket(srcUri, dstUri)
 					}
-					return nil
 				},
 			},
 			{
@@ -106,15 +100,14 @@ func main() {
 				Description: "remove file of google cloud storage [gs://bucketName/path].",
 				ArgsUsage:   "[bucketUri]",
 				Action: func(ctx *cli.Context) error {
-					CheckEnvironmentValues()
+					internal.CheckEnvironmentValues()
 					if ctx.Args().Len() < 1 {
 						EprintlnExit("ERROR: rm requires an argument")
 						return nil
 					}
 
 					uri := ctx.Args().Get(0)
-					CommandRemoveObject(uri)
-					return nil
+					return internal.CommandRemoveObject(uri)
 				},
 			},
 			{
@@ -122,7 +115,7 @@ func main() {
 				Description: "synchronize between google cloud storage files and local files.",
 				ArgsUsage:   "[bucketUri|localPath] [localPath|bucketUri]",
 				Action: func(ctx *cli.Context) error {
-					CheckEnvironmentValues()
+					internal.CheckEnvironmentValues()
 					if ctx.Args().Len() < 2 {
 						EprintlnExit("ERROR: rsync requires 2 arguments")
 						return nil
@@ -131,11 +124,10 @@ func main() {
 					srcUri := ctx.Args().Get(0)
 					dstUri := ctx.Args().Get(1)
 					if strings.HasPrefix(srcUri, "gs://") {
-						CommandSyncBucketToLocal(srcUri, dstUri)
+						return internal.CommandSyncBucketToLocal(srcUri, dstUri)
 					} else {
-						CommandSyncLocalToBucket(srcUri, dstUri)
+						return internal.CommandSyncLocalToBucket(srcUri, dstUri)
 					}
-					return nil
 				},
 			},
 		},

@@ -1,15 +1,15 @@
-package main
+package internal
 
 import (
 	"cloud.google.com/go/storage"
 	"fmt"
+	"google.golang.org/api/iterator"
+	"os"
 	"path/filepath"
 	"strings"
-
-	"google.golang.org/api/iterator"
 )
 
-func CommandSyncBucketToLocal(bucketURI string, destination string) {
+func CommandSyncBucketToLocal(bucketURI string, destination string) error {
 	bucketName, bucketPath := SplitBucketURI(bucketURI)
 
 	// client
@@ -24,8 +24,8 @@ func CommandSyncBucketToLocal(bucketURI string, destination string) {
 			break
 		}
 		if err != nil {
-			EprintlnExit("ERROR:", err)
-			return
+			fmt.Fprintln(os.Stderr, "ERROR:", err)
+			return err
 		}
 
 		// filter
@@ -37,13 +37,19 @@ func CommandSyncBucketToLocal(bucketURI string, destination string) {
 		// read
 		data, err := ReadObject(ctx, client, bucketName, attrs.Name)
 		if err != nil {
-			EprintlnExit("ERROR: failed to read object: ", err)
-			return
+			fmt.Fprintln(os.Stderr, "ERROR: failed to read object: ", err)
+			return err
 		}
 
 		// write
 		dstPath := filepath.Join(destination, attrs.Name)
-		WriteFile(dstPath, data)
+		err = WriteFile(dstPath, data)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "ERROR: failed to write file: ", err)
+			return err
+		}
+
 		fmt.Println("copy", "gs://"+filepath.Join(bucketName, attrs.Name), "=>", dstPath)
 	}
+	return nil
 }

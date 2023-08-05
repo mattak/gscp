@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"os"
@@ -25,6 +25,8 @@ func TestWriteReadObject(t *testing.T) {
 	tf := TestFrame{Test: t}
 
 	tf.Run("write & read & remove object", func(tf TestFrame) {
+		CheckEnvironmentValues()
+
 		ctx, client := CreateClientContext()
 		defer client.Close()
 

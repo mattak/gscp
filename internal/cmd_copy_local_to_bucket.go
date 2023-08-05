@@ -1,12 +1,13 @@
-package main
+package internal
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-func CommandCopyLocalToBucket(source string, bucketURI string) {
+func CommandCopyLocalToBucket(source string, bucketURI string) error {
 	// Trim gs:// from the bucket name
 	bucketName, bucketPath := SplitBucketURI(bucketURI)
 	bucketObject := ""
@@ -27,13 +28,16 @@ func CommandCopyLocalToBucket(source string, bucketURI string) {
 	// read
 	data, err := ReadFile(source)
 	if err != nil {
-		EprintlnExit("ERROR: failed to read file: ", source)
+		fmt.Fprintln(os.Stderr, "ERROR: failed to read file: ", source)
+		return err
 	}
 
 	// write
 	err = WriteObject(ctx, client, bucketName, bucketObject, data)
 	if err != nil {
-		EprintlnExit("ERROR: failed to write object: ", err)
+		fmt.Fprintln(os.Stderr, "ERROR: failed to write object: ", err)
+		return err
 	}
 	fmt.Println(filepath.Join("gs://", bucketName, bucketObject))
+	return nil
 }

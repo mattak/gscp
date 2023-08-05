@@ -9,10 +9,10 @@ BINARY_NAME=gscp
 all: clean build
 
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -v
+	cd cmd && $(GOBUILD) -o $(BINARY_NAME) -v
 
 test:
-	$(GOTEST) -v ./...
+	cd internal && $(GOTEST) -v
 
 clean:
 	$(GOCLEAN)

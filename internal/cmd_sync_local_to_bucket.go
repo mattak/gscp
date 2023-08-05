@@ -1,13 +1,14 @@
-package main
+package internal
 
 import (
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-func CommandSyncLocalToBucket(source string, bucketURI string) {
+func CommandSyncLocalToBucket(source string, bucketURI string) error {
 	bucketName, bucketPath := SplitBucketURI(bucketURI)
 
 	// client
@@ -26,7 +27,7 @@ func CommandSyncLocalToBucket(source string, bucketURI string) {
 			// read
 			data, err := ReadFile(path)
 			if err != nil {
-				EprintlnExit("ERROR: failed to read file: ", err)
+				fmt.Fprintln(os.Stderr, "ERROR: failed to read file: ", err)
 				return err
 			}
 
@@ -35,7 +36,7 @@ func CommandSyncLocalToBucket(source string, bucketURI string) {
 			objectPath := filepath.Join(bucketPath, pathForObject)
 			err = WriteObject(ctx, client, bucketName, objectPath, data)
 			if err != nil {
-				EprintlnExit("ERROR: failed to write object: ", err)
+				fmt.Fprintln(os.Stderr, "ERROR: failed to write object: ", err)
 				return err
 			}
 			fmt.Println("copy", path, "=>", "gs://"+filepath.Join(bucketName, objectPath))
@@ -43,7 +44,9 @@ func CommandSyncLocalToBucket(source string, bucketURI string) {
 		})
 
 	if err != nil {
-		EprintlnExit("ERROR: walking the path", source, ":", err)
-		return
+		fmt.Fprintln(os.Stderr, "ERROR: walking the path", source, ":", err)
+		return err
 	}
+
+	return nil
 }

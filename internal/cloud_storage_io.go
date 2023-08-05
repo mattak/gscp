@@ -1,10 +1,12 @@
-package main
+package internal
 
 import (
 	"cloud.google.com/go/storage"
 	"context"
+	"fmt"
 	"google.golang.org/api/iterator"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 )
@@ -19,13 +21,13 @@ func ReadObject(
 	defer rc.Close()
 
 	if err != nil {
-		Eprintln("Failed to open object: ", err)
+		fmt.Fprintln(os.Stderr, "Failed to open object: ", err)
 		return nil, err
 	}
 
 	data, err := ioutil.ReadAll(rc)
 	if err != nil {
-		Eprintln("Failed to read object: ", err)
+		fmt.Fprintln(os.Stderr, "Failed to read object: ", err)
 		return nil, err
 	}
 
@@ -45,11 +47,11 @@ func WriteObject(
 	// Write data to object
 	wc := obj.NewWriter(*ctx)
 	if _, err := wc.Write(data); err != nil {
-		Eprintln("Failed to write to object: ", err)
+		fmt.Fprintln(os.Stderr, "Failed to write to object: ", err)
 		return err
 	}
 	if err := wc.Close(); err != nil {
-		Eprintln("Failed to close writer: ", err)
+		fmt.Fprintln(os.Stderr, "Failed to close writer: ", err)
 		return err
 	}
 
@@ -64,7 +66,7 @@ func RemoveObject(
 ) error {
 	obj := client.Bucket(bucketName).Object(objectPath)
 	if err := obj.Delete(*ctx); err != nil {
-		Eprintln("Failed to delete object: ", err)
+		fmt.Fprintln(os.Stderr, "Failed to delete object: ", err)
 		return err
 	}
 	return nil
@@ -137,7 +139,7 @@ func CreateClientContext() (*context.Context, *storage.Client) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		EprintlnExit("Failed to create client:", err)
+		fmt.Fprintln(os.Stderr, "Failed to create client:", err)
 		return nil, nil
 	}
 	return &ctx, client

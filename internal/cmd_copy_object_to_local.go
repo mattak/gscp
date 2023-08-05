@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 // copy object to/from bucket
-func CommandCopyObjectToLocal(bucketURI string, destination string) {
+func CommandCopyObjectToLocal(bucketURI string, destination string) error {
 	bucketName, objectName := SplitBucketURI(bucketURI)
 
 	if IsDir(destination) {
@@ -21,14 +21,16 @@ func CommandCopyObjectToLocal(bucketURI string, destination string) {
 	// read
 	data, err := ReadObject(ctx, client, bucketName, objectName)
 	if err != nil {
-		EprintlnExit("ERROR: failed to read object: ", err)
-		return
+		fmt.Fprintln(os.Stderr, "ERROR: failed to read object: ", err)
+		return err
 	}
 
 	// write
 	err = WriteFile(destination, data)
 	if err != nil {
-		EprintlnExit("ERROR: failed to write file: ", err)
+		fmt.Fprintln(os.Stderr, "ERROR: failed to write file: ", err)
+		return err
 	}
 	fmt.Fprintln(os.Stderr, destination)
+	return nil
 }
