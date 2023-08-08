@@ -21,6 +21,5 @@
 go.work
 go.work.*
 
-/cmd/gscp
 .env*
 !.env.sample
